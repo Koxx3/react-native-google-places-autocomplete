@@ -688,7 +688,16 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
     inputRef?.current?.blur();
   };
 
-  const _onFocus = () => setListViewDisplayed(true);
+  const _onFocus = (e) => 
+  {
+    // console.log("_onFocus !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+    setListViewDisplayed(true);
+        
+    // console.log("_onFocus / e ", e)
+    // console.log("_onFocus / inputRef", JSON.stringify(inputRef))
+    debounceData(e?._dispatchInstances?.memoizedProps?.text);
+  }
 
   const _renderPoweredLogo = () => {
     if (!_shouldShowPoweredLogo()) {
