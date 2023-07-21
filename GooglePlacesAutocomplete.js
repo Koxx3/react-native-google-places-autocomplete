@@ -167,6 +167,7 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
     isFocused: () => inputRef.current.isFocused(),
     clear: () => inputRef.current.clear(),
     getCurrentLocation,
+    onSubmit,
   }));
 
   const requestShouldUseWithCredentials = () =>
@@ -301,12 +302,12 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
       request.open(
         'GET',
         `${url}/place/details/json?` +
-          Qs.stringify({
-            key: props.query.key,
-            placeid: rowData.place_id,
-            language: props.query.language,
-            ...props.GooglePlacesDetailsQuery,
-          }),
+        Qs.stringify({
+          key: props.query.key,
+          placeid: rowData.place_id,
+          language: props.query.language,
+          ...props.GooglePlacesDetailsQuery,
+        }),
       );
 
       request.withCredentials = requestShouldUseWithCredentials();
@@ -498,9 +499,9 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
             const results =
               props.nearbyPlacesAPI === 'GoogleReverseGeocoding'
                 ? _filterResultsByTypes(
-                    responseJSON.predictions,
-                    props.filterReverseGeocodingByTypes,
-                  )
+                  responseJSON.predictions,
+                  props.filterReverseGeocodingByTypes,
+                )
                 : responseJSON.predictions;
 
             _results = results;
@@ -528,9 +529,9 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
       request.open(
         'GET',
         `${url}/place/autocomplete/json?input=` +
-          encodeURIComponent(text) +
-          '&' +
-          Qs.stringify(props.query),
+        encodeURIComponent(text) +
+        '&' +
+        Qs.stringify(props.query),
       );
 
       request.withCredentials = requestShouldUseWithCredentials();
@@ -679,6 +680,13 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
     return false;
   };
 
+  const onSubmit = () => {
+    console.log("onSubmit", dataSource.length)
+    if (dataSource?.length > 0) {
+      _onPress(dataSource[0]);
+    }
+  }
+
   const _onBlur = (e) => {
     if (e && isNewFocusInAutocompleteResultList(e)) return;
 
@@ -688,12 +696,11 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
     inputRef?.current?.blur();
   };
 
-  const _onFocus = (e) => 
-  {
+  const _onFocus = (e) => {
     // console.log("_onFocus !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     setListViewDisplayed(true);
-        
+
     // console.log("_onFocus / e ", e)
     // console.log("_onFocus / inputRef", JSON.stringify(inputRef))
     debounceData(e?._dispatchInstances?.memoizedProps?.text);
@@ -830,17 +837,17 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
             onFocus={
               onFocus
                 ? (e) => {
-                    _onFocus();
-                    onFocus(e);
-                  }
+                  _onFocus();
+                  onFocus(e);
+                }
                 : _onFocus
             }
             onBlur={
               onBlur
                 ? (e) => {
-                    _onBlur(e);
-                    onBlur(e);
-                  }
+                  _onBlur(e);
+                  onBlur(e);
+                }
                 : _onBlur
             }
             clearButtonMode={clearButtonMode || 'while-editing'}
@@ -908,6 +915,7 @@ GooglePlacesAutocomplete.propTypes = {
   textInputHide: PropTypes.bool,
   textInputProps: PropTypes.object,
   timeout: PropTypes.number,
+  onSubmit: PropTypes.func,
 };
 
 GooglePlacesAutocomplete.defaultProps = {
@@ -934,9 +942,9 @@ GooglePlacesAutocomplete.defaultProps = {
   minLength: 0,
   nearbyPlacesAPI: 'GooglePlacesSearch',
   numberOfLines: 1,
-  onFail: () => {},
-  onNotFound: () => {},
-  onPress: () => {},
+  onFail: () => { },
+  onNotFound: () => { },
+  onPress: () => { },
   onTimeout: () => console.warn('google places autocomplete: request timeout'),
   placeholder: '',
   predefinedPlaces: [],
@@ -951,6 +959,7 @@ GooglePlacesAutocomplete.defaultProps = {
   textInputHide: false,
   textInputProps: {},
   timeout: 20000,
+  onSubmit: () => { },
 };
 
 export default { GooglePlacesAutocomplete };
