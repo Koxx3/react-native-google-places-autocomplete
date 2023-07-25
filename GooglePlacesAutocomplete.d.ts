@@ -429,6 +429,7 @@ interface GooglePlacesAutocompleteProps {
   textInputProps?: TextInputProps | Object;
   timeout?: number;
   onSubmit?: () => void;
+  clearResults?: () => void;
 }
 
 export type GooglePlacesAutocompleteRef = {

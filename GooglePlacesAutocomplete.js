@@ -87,13 +87,14 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
   const buildRowsFromResults = (results) => {
     let res = [];
 
+    let predefinedPlacesReversed = [...props.predefinedPlaces].reverse();
+
     if (results.length === 0 || props.predefinedPlacesAlwaysVisible === true) {
-      res = [
-        ...props.predefinedPlaces.filter((place) => place?.description.length),
-      ];
+      // console.log("buildRowsFromResults / predefinedPlacesReversed", predefinedPlacesReversed)
+      res = predefinedPlacesReversed.filter((place) => place?.description?.length);
 
       if (props.currentLocation === true && hasNavigator()) {
-        res.unshift({
+        res.push({
           description: props.currentLocationLabel,
           isCurrentLocation: true,
         });
@@ -105,8 +106,9 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
       isPredefinedPlace: true,
     }));
 
-    return [...res, ...results];
+    return [...results, ...res];
   };
+
 
   const getRequestUrl = (requestUrl) => {
     if (requestUrl) {
@@ -168,6 +170,7 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
     clear: () => inputRef.current.clear(),
     getCurrentLocation,
     onSubmit,
+    clearResults,
   }));
 
   const requestShouldUseWithCredentials = () =>
@@ -236,6 +239,7 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
 
   const _onPress = (rowData) => {
     if (rowData.isPredefinedPlace !== true && props.fetchDetails === true) {
+      console.log("GooglePlacesAutocomplete / _onPress / case 1");
       if (rowData.isLoading === true) {
         // already requesting
         return;
@@ -315,6 +319,7 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
 
       request.send();
     } else if (rowData.isCurrentLocation === true) {
+      console.log("GooglePlacesAutocomplete / _onPress / case 2");
       // display loader
       _enableRowLoader(rowData);
 
@@ -323,6 +328,7 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
       delete rowData.isLoading;
       getCurrentLocation();
     } else {
+      console.log("GooglePlacesAutocomplete / _onPress / case 3");
       setStateText(_renderDescription(rowData));
 
       _onBlur();
@@ -683,8 +689,13 @@ export const GooglePlacesAutocomplete = forwardRef((props, ref) => {
   const onSubmit = () => {
     console.log("onSubmit", dataSource.length)
     if (dataSource?.length > 0) {
+      console.log("onSubmit", dataSource[0])
       _onPress(dataSource[0]);
     }
+  }
+
+  const clearResults = () => {
+    setStateText("");
   }
 
   const _onBlur = (e) => {
@@ -916,6 +927,7 @@ GooglePlacesAutocomplete.propTypes = {
   textInputProps: PropTypes.object,
   timeout: PropTypes.number,
   onSubmit: PropTypes.func,
+  clearResults: PropTypes.func,
 };
 
 GooglePlacesAutocomplete.defaultProps = {
@@ -960,6 +972,7 @@ GooglePlacesAutocomplete.defaultProps = {
   textInputProps: {},
   timeout: 20000,
   onSubmit: () => { },
+  clearResults: () => { },
 };
 
 export default { GooglePlacesAutocomplete };
